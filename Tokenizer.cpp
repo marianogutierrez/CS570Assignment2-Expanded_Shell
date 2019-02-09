@@ -9,6 +9,7 @@ using namespace std;
 
 // Cameron Ozatalar
 // Mariano Gutierrez
+// singular method to tokenize input based off first program rules
 
 void Tokenizer::Tokenize(LinkedList* list, string input){
     string spChar = "|;<>&";
@@ -23,7 +24,7 @@ void Tokenizer::Tokenize(LinkedList* list, string input){
         }else if(spChar.find(input.at(i)) != string::npos){ // Special Char
             if(token.length() != 0)
                 list -> add(token);
-            list -> add(string(1, input.at(i)));
+            list -> add(string(1, input.at(i))); // Automatic variable no need to free.
             token = "";
 
         }else if(input.at(i) == '"'){ // Double Quote Char

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <string>
-#include <unistd.h>
+#include <unistd.h> // to access POSIX standard calls
 
 #include <readline/readline.h>
 #include <readline/history.h>

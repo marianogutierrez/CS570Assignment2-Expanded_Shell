@@ -1,4 +1,4 @@
-#pragma once
+#pragma once //headfile guard to not stamp twice; similar to #ifndef GUARD_NAME  #define GUARD_NAME
 #include <string>
 
 using namespace std;

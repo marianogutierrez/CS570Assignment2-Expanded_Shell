@@ -37,6 +37,15 @@ void LinkedList::add(string s){
     this -> size++;
 }
 
+//M.G
+string* LinkedList::removeFirst() {
+    if(head == NULL) return NULL;
+    string* token = head -> data;
+    head = head -> next;
+    if(head == NULL) tail == NULL;
+    size--;
+    return token;
+}
 // Prints all items in LL
 string LinkedList::toString(){
     string returnStr = "[";

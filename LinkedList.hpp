@@ -13,13 +13,14 @@ class LinkedList{
                 ListNode(string* d);
                 ~ListNode();
 
-                string* data;
+                string* data; // essentially a char array
                 ListNode* next;
         };
     
         LinkedList();
         ~LinkedList();
         void add(string s);
+        string* removeFirst();
         string toString();
 
         ListNode* head;

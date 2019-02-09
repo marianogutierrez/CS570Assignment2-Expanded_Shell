@@ -42,7 +42,7 @@ string* LinkedList::removeFirst() {
     if(head == NULL) return NULL;
     string* token = head -> data;
     head = head -> next;
-    if(head == NULL) tail == NULL;
+    if(head == NULL) tail == NULL; // instance in which our list is empty as a result
     size--;
     return token;
 }

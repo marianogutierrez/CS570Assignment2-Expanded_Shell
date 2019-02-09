@@ -14,11 +14,11 @@ LinkedList::LinkedList(){
 
 // Deconstruct LinkedList
 LinkedList::~LinkedList(){
-    ListNode *c = this -> head;
+    ListNode *current = this -> head;
     while(this -> size > 0){
-        this -> head = c -> next;
-        delete c;
-        c = this -> head;
+        this -> head = current -> next;
+        delete current;
+        current = this -> head;
         this -> size--;
     }
 }
@@ -39,19 +39,19 @@ void LinkedList::add(string s){
 
 // Prints all items in LL
 string LinkedList::toString(){
-    string r = "[";
+    string returnStr = "[";
 
     ListNode *current = this -> head;
     for(int i = 0; i < this -> size; i++){
-        r.append("{");
-        r.append(*(current -> data));
-        r.append("},");
+        returnStr.append("{");
+        returnStr.append(*(current -> data));
+        returnStr.append("},");
         current = current -> next;
     }
 
-    r = r.substr(0, r.length()-1);
-    r.append("]");
-    return r;
+    returnStr = returnStr.substr(0, returnStr.length()-1);
+    returnStr.append("]");
+    return returnStr1;
 }
 
 // Construct ListNode

@@ -3,7 +3,7 @@
 using namespace std;
 
 // Cameron Ozatalar
-//  820087470
+// Mariano Gutierrez
 
 // LinkedList class
 class LinkedList{

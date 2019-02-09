@@ -1,4 +1,5 @@
 #Cameron Ozatalar
+#Mariano Gutierrez
 
 #Create tokenizer executable
 tokenizer: Tokenizer.cpp LinkedList.o

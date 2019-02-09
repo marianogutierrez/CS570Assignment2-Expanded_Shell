@@ -2,8 +2,8 @@
 
 #include "LinkedList.hpp"
 
-// Cameron Ozatalar
-//  820087470
+// Cameron Ozatalar 
+// Mariano Gutierrez
 
 // Construct LinkedList
 LinkedList::LinkedList(){

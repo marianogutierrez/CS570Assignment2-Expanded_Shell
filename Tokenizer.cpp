@@ -10,7 +10,7 @@
 using namespace std;
 
 // Cameron Ozatalar
-//  820087470
+// Mariano Gutierrez
 
 int main(int argc, char** argv){
     while(true){

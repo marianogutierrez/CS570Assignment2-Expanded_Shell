@@ -51,7 +51,7 @@ string LinkedList::toString(){
 
     returnStr = returnStr.substr(0, returnStr.length()-1);
     returnStr.append("]");
-    return returnStr1;
+    return returnStr;
 }
 
 // Construct ListNode

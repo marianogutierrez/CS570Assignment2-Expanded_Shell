@@ -49,6 +49,7 @@ string* LinkedList::removeFirst() {
     if(head == NULL)
         tail == NULL; // instance in which our list is empty as a result
 
+    delete tmp;
     size--;
     return token;
 }

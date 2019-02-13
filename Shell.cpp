@@ -68,27 +68,31 @@ void execute_commands(LinkedList* list){
             int currentSize = list -> size;
             for(int i = 1; i < currentSize; i++) {
                 // check max arg amount...
-                strcpy(arrayOfParameters[i], list -> removeFirst() -> c_str());
+                 if(i == 99) {
+                    cout << "Max number of args reached!" << endl;
+                    break;
+                }
+                string* token = list -> removeFirst();
+                if(token -> compare(";") || token -> compare(";"))
+                    break; // done processing arguements... Maybe more to come?
+            
+                strcpy(arrayOfParameters[i], token -> c_str());
             }
                 
-            
-            
             pid_t pid = fork(); // spawn off the executioner 
 
             if(pid == -1) // Fork Failed
                 cout << "unable to spawn program" << endl; // In practice this should not typically happen
 
             if(pid == 0) { // Child/Executioner 
-                int execStatus;
                 // Pass in the command, and the arguements, no need for environment pointer, hence set to NULL
-                execStatus = execvp(token -> c_str(), arrayOfParameters); 
+                int execStatus = execvp(token -> c_str(), arrayOfParameters); 
                 if(execStatus == -1) // Execve failed 
                     cout << "Unable to execute " << token << endl;
             }
-            //TODO: otherwise wait for exec to finish
             pid_t returnStatus;
             wait(&returnStatus);
-            if(returnStatus == -1)  {
+            if(returnStatus == -1)  { // wait returned retrunStatus as a fail
                 cout << "Process exited with error" << endl;
             }
             else {
@@ -99,7 +103,10 @@ void execute_commands(LinkedList* list){
     }
 }
 
-// free things in order reverse stack-wise LIFO
+/*
+  3Method to freeup the allocated array of parameters
+ free things in order reverse stack-wise LIFO
+ */
 void freeLines(char** buff) {
   for(int i = 0; i < 256; i++) {
    free(buff[i]);

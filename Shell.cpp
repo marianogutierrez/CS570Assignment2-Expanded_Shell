@@ -73,8 +73,12 @@ void execute_commands(LinkedList* list){
                     break;
                 }
                 string* token = list -> removeFirst();
-                if(token -> compare(";") || token -> compare(";"))
-                    break; // done processing arguements... Maybe more to come?
+                if(token -> compare(";"))
+                    break; 
+                if(token -> compare("|")) {
+                    cout << "Pipe not implemented" << endl; // warn the user.
+                    break; // continue i.e. treat as a ;
+                }
             
                 strcpy(arrayOfParameters[i], token -> c_str());
             }

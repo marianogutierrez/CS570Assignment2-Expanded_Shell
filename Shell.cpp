@@ -18,6 +18,17 @@ const int MAX_ARGS = 100; // so, really 99 args max since first arg is the progr
 // Cameron Ozatalar
 // Mariano Gutierrez
 
+/*
+  3Method to freeup the allocated array of parameters
+ free things in order reverse stack-wise LIFO
+ */
+void freeLines(char** buff) {
+  for(int i = 0; i < 256; i++) {
+   free(buff[i]);
+  }
+  free(buff);
+}
+
 void execute_commands(LinkedList* list){
     while(list -> size != 0){
         string* token = list -> removeFirst();
@@ -107,16 +118,7 @@ void execute_commands(LinkedList* list){
     }
 }
 
-/*
-  3Method to freeup the allocated array of parameters
- free things in order reverse stack-wise LIFO
- */
-void freeLines(char** buff) {
-  for(int i = 0; i < 256; i++) {
-   free(buff[i]);
-  }
-  free(buff);
-}
+
 
 int main(int argc, char** argv){
     while(true){

@@ -13,7 +13,6 @@ Tokenizer.o: Tokenizer.cpp Tokenizer.hpp
 LinkedList.o: LinkedList.cpp LinkedList.hpp
 	g++ -c LinkedList.cpp
 
-#Clean up object and executable files
+#Clean up object and executable files; Note that core is for the core dump file if one is produced
 clean:
 	rm -f core Tokenizer.o LinkedList.o shell 
-	#Note that core is for the core dump file if one is produced

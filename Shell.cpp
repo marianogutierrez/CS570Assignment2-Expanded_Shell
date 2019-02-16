@@ -19,100 +19,128 @@ const int MAX_ARGS = 102; // so, really 99 args max since first arg is the progr
 // Mariano Gutierrez
 
 /*
-  3Method to freeup the allocated array of parameters
- free things in order reverse stack-wise LIFO
+  Method to freeup the allocated array of parameters
  */
-/*
 void freeLines(char** buff) {
   for(int i = 0; i < MAX_ARGS; i++) {
-   free(buff[i]);
+   free(buff[i]); // NOTE: one of these will be null but that is safe
   }
   free(buff);
 }
-*/
+
+bool isDelimiter(string* tok) {
+    if(tok -> compare(";") == 0 || tok -> compare("|") == 0) { // delimiter, also handles pwd and cd multiple
+        if (tok -> compare("|") == 0) {
+            cout << "Pipe not implemented" << endl; // warn the user.
+         }
+         return true;
+     }
+     return false;
+}
+
 
 void execute_commands(LinkedList* list){
-    while(list -> size != 0){
+    while(list -> size != 0){ // while tokens are available
         string* token = list -> removeFirst();
-        if(token -> compare(">") == 0 || token -> compare("<") == 0){ // if we find it... report the error
-            if(!list -> size - 1 == 0) // reached the end and nothing to grab
-                list -> removeFirst();  // strip the following token
+        if(isDelimiter(token)){
+            continue; // just go on executing commands.
+        } 
+        else if(token -> compare(">") == 0 || token -> compare("<") == 0) {
+                if((list -> size - 1 >= 0))   // as long as there is someting else to grab
+                    list -> removeFirst();  // strip the following token dunno if need
             cout << "IO redirection and background not implemented" << endl;
-
-        }else if(token -> compare("&") == 0){          
+            }
+        else if(token -> compare("&") == 0) {
             cout << "IO redirection and background not implemented" << endl;
-
-         } else if(token -> compare("cd") == 0){
-            // TODO: ASK e.g. cd /media/ | ; goto media then print fail  NOTE BOTTOM OF PG 3 says this is required 
-            if(list -> size != 1){  // maybe change to if the next one is not | or ;? 
-                cout << "Accepts exactly one argument" << endl;
-            }else{
+        }
+        else if(token -> compare("cd") == 0){ // STARTING WITH THE TOKEN CD
+            if(list -> size >= 2){  // case in which multiple cmds's e.g. cd.. ; ls
+                string* path = list -> removeFirst();
+                if(isDelimiter(list -> removeFirst())) {
+                    if(chdir(path -> c_str()) != 0) { // only works for char* | returns 0 on success
+                        cout << "Directory does not exist or is not accessible." << endl;
+                    }
+                }
+                else {
+                    cout << "Accepts exactly one argument" << endl;
+                }
+            }else if(list -> size == 1){
                 string* path = list -> removeFirst();
                 if(chdir(path -> c_str()) != 0){ // only works for char* | returns 0 on success
                     cout << "Directory does not exist or is not accessible." << endl;
                 }
             }
-        }else if(token -> compare("pwd") == 0){
+            else { // zero args
+                cout << "Accepts exactly one argument" << endl;
+            }
+        }else if(token -> compare("pwd") == 0){ // single token
             char* path = (char*) malloc(sizeof(char)*512);
             getcwd(path, 512);
             if(path == NULL)  // returns NULL on failure 
-                cout << "unable to obtain current directory" << endl;
+                cout << "Unable to obtain current directory" << endl;
             string input(path); // convert back to c++ string
             cout << path << endl; // print out the cwd
         } 
         else {
             // fork-exec 
-            char** arrayOfParameters = (char**) malloc((sizeof(char*) * MAX_ARGS));
+            //construct argv to pass into execvp
+            char** arrayOfParameters = (char**) malloc((sizeof(char*)) * MAX_ARGS);
             for(int i = 0; i < MAX_ARGS; i++) { // 2-d array
                 arrayOfParameters[i] = (char*) malloc(sizeof(char) * 256); // max length of the string will be 256 bytes
             }
-            strcpy(arrayOfParameters[0],token -> c_str()); // first arg ought to the name of the program
-            arrayOfParameters[MAX_ARGS-1] = '\0'; // Last arguement must be null as requested to function with execvp
 
+            strcpy(arrayOfParameters[0],token -> c_str()); // first arg ought to the name of the program
 
             int currentSize = list -> size;
-            for(int i = 1; i < currentSize; i++) { // for filling array of params
+            int posToEnd = 1; // where to append the null pointer, by default 1 as in no args 
+            for(int i = 1; i <= currentSize; i++) { // for filling array of params maybe change to list -> size dyanmic
                 // check max arg amount...
                  if(i == 101) {
                     cout << "Max number of args reached!" << endl;
                     break;
                 }
                 string* token = list -> removeFirst();
-                if(token -> compare(";"))
-                    break; 
-                if(token -> compare("|")) {
-                    cout << "Pipe not implemented" << endl; // warn the user.
-                    break; // continue i.e. treat as a ;
+                if(token -> compare(">") == 0 || token -> compare("<") == 0) {
+                    if((list -> size - 1 >= 0))  { // as long as there is someting else to grab
+                        list -> removeFirst();  // strip the following token dunno if need
+                        i++; // ensure we dont read in the skipped one 
+                    }
+                    cout << "IO redirection and background not implemented" << endl;
                 }
-                
+                else if(isDelimiter(token)) {
+                    break; 
+                }
+                else {
                 strcpy(arrayOfParameters[i], token -> c_str());
-            }
-                
+                posToEnd++;
+                }
+            } // end for loop
+            arrayOfParameters[posToEnd] = NULL;
+            
             pid_t pid = fork(); // spawn off the executioner 
 
             if(pid == -1) // Fork Failed
                 cout << "unable to spawn program" << endl; // In practice this should not typically happen
 
             if(pid == 0) { // Child/Executioner 
-                // Pass in the command, and the arguements, no need for environment pointer, hence set to NULL
-                int execStatus = execvp(token -> c_str(), arrayOfParameters); 
+                int execStatus = execvp(arrayOfParameters[0], arrayOfParameters); 
                 if(execStatus == -1) // Execve failed 
                     cout << "Unable to execute " << token << endl;
             }
-            pid_t returnStatus;
-            wait(&returnStatus);
-            if(returnStatus == -1)  { // wait returned retrunStatus as a fail
-                cout << "Process exited with error" << endl;
+            else { // I am the parent
+                pid_t returnStatus;
+                wait(&returnStatus);
+                if(returnStatus == -1)  { // wait returned retrunStatus as a fail
+                    cout << "Process exited with error" << endl;
+                }
+                else {
+                    cout << "Process exited successfully" << endl;
+                }
+                freeLines(arrayOfParameters); // either way, we need to free that array of pointers 
             }
-            else {
-            cout << "Process exited successfully" << endl;
-            }
-            //freeLines(arrayOfParameters); // either way, we need to free that array of pointers 
         } 
     }
 }
-
-
 
 int main(int argc, char** argv){
     while(true){
@@ -122,7 +150,7 @@ int main(int argc, char** argv){
         //Exit case (Ctrl-d)
         if(in == NULL){
             cout << endl;
-            return 1; //EOF
+            return 1; //EOFl
         }
         string input(in);
 

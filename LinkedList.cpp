@@ -14,12 +14,11 @@ LinkedList::LinkedList(){
 
 // Deconstruct LinkedList
 LinkedList::~LinkedList(){
-    ListNode *current = this -> head;
-    while(this -> size > 0){
-        this -> head = current -> next;
-        delete current;
-        current = this -> head;
-        this -> size--;
+    ListNode *current;
+    while(head != NULL){
+       current = head;
+       head = head -> next;
+       delete current;
     }
 }
 
@@ -49,7 +48,6 @@ string* LinkedList::removeFirst() {
     if(head == NULL)
         tail == NULL; // instance in which our list is empty as a result
 
-    delete tmp;
     size--;
     return token;
 }

@@ -23,7 +23,7 @@ const int MAX_ARGS = 102; // so, really 99 args max since first arg is the progr
 /*Method to freeup the allocated array of parameters for execvp.*/
 void freeLines(char** buff) {
   for(int i = 0; i < MAX_ARGS; i++) {
-   free(buff[i]); // NOTE: one of these will be null but that is safe
+   free(buff[i]); // NOTE: one of these will be null for execvp, but that is safe
   }
   free(buff);
 }
@@ -42,12 +42,12 @@ bool isDelimiter(string tok) {
 vector<string>* strip(vector<string> *cmds) {
     int currentSize = cmds -> size();
     vector<string>* cleanedUp = new vector<string>();
-    bool detected = false; 
+    bool detected = false; // to see if warning message will need to be printed.
     for(int i = 0; i < currentSize; i++) {
         if(cmds -> at(i).compare(">") == 0 || cmds -> at(i).compare("<") == 0){
             detected = true;
             if(i < cmds -> size()){   // as long as there is someting else to grab
-                i++; // skip over it;
+                i++; // skip over it to ensure we don't add it on;
             }
         }
         else if(cmds -> at(i).compare("&") == 0) {
@@ -74,14 +74,14 @@ void execute_commands(LinkedList* list){
             else 
                 break;
         }
-        //big token
+        //big token 
         //if(!isDelimiter(token)) 
                 //command -> push_back(token);
         // strip commands of < > or &
         command = strip(command);
         if(command -> size() == 0) break;
 
-        if(command -> at(0).compare("cd") == 0){ // STARTING WITH THE TOKEN CD
+        if(command -> at(0).compare("cd") == 0){ // cd case:
             if(command -> size() == 2){ // one arg only
                 string path = command -> at(1);
                 if(chdir(path.c_str()) != 0){ // only works for char* | returns 0 on success
@@ -92,7 +92,7 @@ void execute_commands(LinkedList* list){
                  cout << "Accepts exactly one argument" << endl;
             }
         }
-        else if(command -> at(0).compare("pwd") == 0){ // single token
+        else if(command -> at(0).compare("pwd") == 0){ // single token pwd case
             if(command -> size() != 1 ){
                 cout << "Error expected one single token" << endl;
             } 
@@ -105,35 +105,29 @@ void execute_commands(LinkedList* list){
                 cout << path << endl; // print out the cwd
             }
         } 
-        else {
-            // fork-exec 
+        else { // fork-exec case
             //construct argv to pass into execvp
             char** arrayOfParameters = (char**) malloc((sizeof(char*)) * MAX_ARGS);
             for(int i = 0; i < MAX_ARGS; i++) { // 2-d array
                 arrayOfParameters[i] = (char*) malloc(sizeof(char) * 256); // max length of the string will be 256 bytes
             }
-
             strcpy(arrayOfParameters[0],command -> at(0).c_str()); // first arg ought to the name of the program
 
             int currentSize = command -> size();
-            int posToEnd = 1; // where to append the null pointer, by default 1; as in no args 
-            for(int i = 1; i < currentSize; i++) { // for filling array of params maybe change to list -> size dyanmic
+            int i;
+            for(i = 1; i < currentSize; i++) { // for filling array of params maybe change to list -> size dyanmic
                 // check max arg amount...
                  if(i == 101) {
                     cout << "Max number of args reached!" << endl;
                     break;
                 }
                 strcpy(arrayOfParameters[i], command -> at(i).c_str());
-                posToEnd++;
             }
-             // end for loop
-            arrayOfParameters[posToEnd] = NULL;
+            arrayOfParameters[i] = NULL; // null terminate to use execvp
             
             pid_t pid = fork(); // spawn off the executioner 
-
             if(pid == -1) // Fork Failed
                 cout << "unable to spawn program" << endl; // In practice this should not typically happen
-
             if(pid == 0) { // Child/Executioner 
                 int execStatus = execvp(arrayOfParameters[0], arrayOfParameters); 
                 if(execStatus == -1) // Execve failed 
@@ -150,11 +144,10 @@ void execute_commands(LinkedList* list){
                 }
                 freeLines(arrayOfParameters); // either way, we need to free that array of pointers 
             }
-         delete command;
+         delete command; // free up the commnd vector
         }
       } 
     }
-
 
 int main(int argc, char** argv){
     while(true){

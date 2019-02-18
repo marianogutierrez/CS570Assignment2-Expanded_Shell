@@ -23,8 +23,8 @@ LinkedList::~LinkedList(){
 }
 
 // Add Node to LL
-void LinkedList::add(string s){ 
-    ListNode *node = new ListNode(s);
+void LinkedList::add(string str){ 
+    ListNode *node = new ListNode(str);
 
     if(this -> size == 0){
         this -> head = this -> tail = node;
@@ -71,12 +71,13 @@ string LinkedList::toString(){
 }
 
 // Construct ListNode
-LinkedList::ListNode::ListNode(string d){
-    this -> data = d;
+LinkedList::ListNode::ListNode(string data){
+    this -> data = data;
     this -> next = NULL;
 }
 
 // Deconstruct ListNode
+// NOTE: not needed since contains a string allocated for the classs; will be autodestroyed
 LinkedList::ListNode::~ListNode(){
-    //delete this -> data;
+    //delete this -> data; 
 }

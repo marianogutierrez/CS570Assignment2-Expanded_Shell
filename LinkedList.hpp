@@ -14,7 +14,7 @@ class LinkedList{
                 ListNode(string d);
                 ~ListNode();
 
-                string data; // essentially a char array
+                string data;// essentially a char array
                 ListNode* next;
         };
     

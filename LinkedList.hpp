@@ -11,17 +11,17 @@ class LinkedList{
     public:
         class ListNode{ // ListNode class
             public:
-                ListNode(string* d);
+                ListNode(string d);
                 ~ListNode();
 
-                string* data; // essentially a char array
+                string data; // essentially a char array
                 ListNode* next;
         };
     
         LinkedList();
         ~LinkedList();
         void add(string s);
-        string* removeFirst();
+        string removeFirst();
         string toString();
 
         ListNode* head;

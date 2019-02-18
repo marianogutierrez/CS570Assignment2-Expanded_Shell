@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <string>
+#include <vector>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -18,9 +19,8 @@ const int MAX_ARGS = 102; // so, really 99 args max since first arg is the progr
 // Cameron Ozatalar
 // Mariano Gutierrez
 
-/*
-  Method to freeup the allocated array of parameters
- */
+
+/*Method to freeup the allocated array of parameters for execvp.*/
 void freeLines(char** buff) {
   for(int i = 0; i < MAX_ARGS; i++) {
    free(buff[i]); // NOTE: one of these will be null but that is safe
@@ -28,58 +28,82 @@ void freeLines(char** buff) {
   free(buff);
 }
 
-bool isDelimiter(string* tok) {
-    if(tok -> compare(";") == 0 || tok -> compare("|") == 0) { // delimiter, also handles pwd and cd multiple
-        if (tok -> compare("|") == 0) {
+/*Checks to see if a delimiter i.e. ; or |. if | prints out error */
+bool isDelimiter(string tok) {
+    if(tok.compare(";") == 0 || tok.compare("|") == 0) { // delimiter, also handles pwd and cd multiple
+        if (tok.compare("|") == 0) 
             cout << "Pipe not implemented" << endl; // warn the user.
-         }
          return true;
      }
      return false;
 }
 
+//Strips all <> and &
+vector<string>* strip(vector<string> *cmds) {
+    int currentSize = cmds -> size();
+    vector<string>* cleanedUp = new vector<string>();
+    bool detected = false; 
+    for(int i = 0; i < currentSize; i++) {
+        if(cmds -> at(i).compare(">") == 0 || cmds -> at(i).compare("<") == 0){
+            detected = true;
+            if(i < cmds -> size()){   // as long as there is someting else to grab
+                i++; // skip over it;
+            }
+        }
+        else if(cmds -> at(i).compare("&") == 0) {
+            detected = true;
+        }
+        else {
+            cleanedUp -> push_back(cmds -> at(i));
+        }
+    }
+    if(detected)  // dont want to print out multiple times
+            cout << "IO redirection and background not implemented" << endl;
+    return cleanedUp;
+}
+
 
 void execute_commands(LinkedList* list){
     while(list -> size != 0){ // while tokens are available
-        string* token = list -> removeFirst();
-        if(isDelimiter(token)){
-            continue; // just go on executing commands.
-        } 
-        else if(token -> compare(">") == 0 || token -> compare("<") == 0) {
-                if((list -> size - 1 >= 0))   // as long as there is someting else to grab
-                    list -> removeFirst();  // strip the following token dunno if need
-            cout << "IO redirection and background not implemented" << endl;
-            }
-        else if(token -> compare("&") == 0) {
-            cout << "IO redirection and background not implemented" << endl;
+        vector<string> *command = new vector<string>();
+        string token;
+        while(list -> size != 0) { // delimit the command
+            token = list -> removeFirst(); // decrements size hence need to be careful
+            if(!isDelimiter(token)) 
+                command -> push_back(token);
+            else 
+                break;
         }
-        else if(token -> compare("cd") == 0){ // STARTING WITH THE TOKEN CD
-            if(list -> size >= 2){  // case in which multiple cmds's e.g. cd.. ; ls
-                string* path = list -> removeFirst();
-                if(isDelimiter(list -> removeFirst())) {
-                    if(chdir(path -> c_str()) != 0) { // only works for char* | returns 0 on success
-                        cout << "Directory does not exist or is not accessible." << endl;
-                    }
-                }
-                else {
-                    cout << "Accepts exactly one argument" << endl;
-                }
-            }else if(list -> size == 1){
-                string* path = list -> removeFirst();
-                if(chdir(path -> c_str()) != 0){ // only works for char* | returns 0 on success
+        //big token
+        //if(!isDelimiter(token)) 
+                //command -> push_back(token);
+        // strip commands of < > or &
+        command = strip(command);
+        if(command -> size() == 0) break;
+
+        if(command -> at(0).compare("cd") == 0){ // STARTING WITH THE TOKEN CD
+            if(command -> size() == 2){ // one arg only
+                string path = command -> at(1);
+                if(chdir(path.c_str()) != 0){ // only works for char* | returns 0 on success
                     cout << "Directory does not exist or is not accessible." << endl;
                 }
             }
-            else { // zero args
-                cout << "Accepts exactly one argument" << endl;
+            else {
+                 cout << "Accepts exactly one argument" << endl;
             }
-        }else if(token -> compare("pwd") == 0){ // single token
-            char* path = (char*) malloc(sizeof(char)*512);
-            getcwd(path, 512);
-            if(path == NULL)  // returns NULL on failure 
-                cout << "Unable to obtain current directory" << endl;
-            string input(path); // convert back to c++ string
-            cout << path << endl; // print out the cwd
+        }
+        else if(command -> at(0).compare("pwd") == 0){ // single token
+            if(command -> size() != 1 ){
+                cout << "Error expected one single token" << endl;
+            } 
+            else {
+                char* path = (char*) malloc(sizeof(char)*512);
+                getcwd(path, 512);
+                if(path == NULL)  // returns NULL on failure 
+                    cout << "Unable to obtain current directory" << endl;
+                string input(path); // convert back to c++ string
+                cout << path << endl; // print out the cwd
+            }
         } 
         else {
             // fork-exec 
@@ -89,32 +113,20 @@ void execute_commands(LinkedList* list){
                 arrayOfParameters[i] = (char*) malloc(sizeof(char) * 256); // max length of the string will be 256 bytes
             }
 
-            strcpy(arrayOfParameters[0],token -> c_str()); // first arg ought to the name of the program
+            strcpy(arrayOfParameters[0],command -> at(0).c_str()); // first arg ought to the name of the program
 
-            int currentSize = list -> size;
-            int posToEnd = 1; // where to append the null pointer, by default 1 as in no args 
-            for(int i = 1; i <= currentSize; i++) { // for filling array of params maybe change to list -> size dyanmic
+            int currentSize = command -> size();
+            int posToEnd = 1; // where to append the null pointer, by default 1; as in no args 
+            for(int i = 1; i < currentSize; i++) { // for filling array of params maybe change to list -> size dyanmic
                 // check max arg amount...
                  if(i == 101) {
                     cout << "Max number of args reached!" << endl;
                     break;
                 }
-                string* token = list -> removeFirst();
-                if(token -> compare(">") == 0 || token -> compare("<") == 0) {
-                    if((list -> size - 1 >= 0))  { // as long as there is someting else to grab
-                        list -> removeFirst();  // strip the following token dunno if need
-                        i++; // ensure we dont read in the skipped one 
-                    }
-                    cout << "IO redirection and background not implemented" << endl;
-                }
-                else if(isDelimiter(token)) {
-                    break; 
-                }
-                else {
-                strcpy(arrayOfParameters[i], token -> c_str());
+                strcpy(arrayOfParameters[i], command -> at(i).c_str());
                 posToEnd++;
-                }
-            } // end for loop
+            }
+             // end for loop
             arrayOfParameters[posToEnd] = NULL;
             
             pid_t pid = fork(); // spawn off the executioner 
@@ -138,9 +150,11 @@ void execute_commands(LinkedList* list){
                 }
                 freeLines(arrayOfParameters); // either way, we need to free that array of pointers 
             }
-        } 
+         delete command;
+        }
+      } 
     }
-}
+
 
 int main(int argc, char** argv){
     while(true){
@@ -150,18 +164,13 @@ int main(int argc, char** argv){
         //Exit case (Ctrl-d)
         if(in == NULL){
             cout << endl;
-            return 1; //EOFl
+            return 1; //EOF
         }
         string input(in);
 
         // Create LinkedList and call Tokenize method
         LinkedList* list = new LinkedList();
         Tokenizer::Tokenize(list, input);
-
-        // Print Tokens
-        if(list -> size != 0)
-            cout << list -> toString() << endl;
-        
         execute_commands(list);
         delete list;
     }

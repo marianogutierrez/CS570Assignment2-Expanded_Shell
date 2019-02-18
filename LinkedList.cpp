@@ -23,8 +23,8 @@ LinkedList::~LinkedList(){
 }
 
 // Add Node to LL
-void LinkedList::add(string s){
-    ListNode *node = new ListNode(new string(s));
+void LinkedList::add(string s){ 
+    ListNode *node = new ListNode(s);
 
     if(this -> size == 0){
         this -> head = this -> tail = node;
@@ -37,11 +37,12 @@ void LinkedList::add(string s){
 }
 
 //Removes the first item of the Linked List
-string* LinkedList::removeFirst() {
+string LinkedList::removeFirst() {
     if(head == NULL)
         return NULL;
     
-    string* token = head -> data;
+    string token = head -> data;
+    
     ListNode *tmp = head;
     head = head -> next;
 
@@ -59,7 +60,7 @@ string LinkedList::toString(){
     ListNode *current = this -> head;
     for(int i = 0; i < this -> size; i++){
         returnStr.append("{");
-        returnStr.append(*(current -> data));
+        returnStr.append((current -> data));
         returnStr.append("},");
         current = current -> next;
     }
@@ -70,12 +71,12 @@ string LinkedList::toString(){
 }
 
 // Construct ListNode
-LinkedList::ListNode::ListNode(string* d){
+LinkedList::ListNode::ListNode(string d){
     this -> data = d;
     this -> next = NULL;
 }
 
 // Deconstruct ListNode
 LinkedList::ListNode::~ListNode(){
-    delete this -> data;
+    //delete this -> data;
 }

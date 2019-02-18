@@ -131,7 +131,7 @@ void execute_commands(LinkedList* list){
             if(pid == 0) { // Child/Executioner 
                 int execStatus = execvp(arrayOfParameters[0], arrayOfParameters); 
                 if(execStatus == -1) // Execve failed 
-                    cout << "Unable to execute " << token << endl;
+                    cout << "Unable to execute " << arrayOfParameters[0] << endl;
             }
             else { // I am the parent
                 pid_t returnStatus;

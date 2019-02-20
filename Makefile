@@ -2,8 +2,8 @@
 #Mariano Gutierrez
 
 # : indicates dependencies 
-MUSH: shell.cpp Tokenizer.o LinkedList.o
-	g++ shell.cpp Tokenizer.o LinkedList.o -g -o MUSH -lreadline
+MUSH: Shell.cpp Tokenizer.o LinkedList.o
+	g++ Shell.cpp Tokenizer.o LinkedList.o -g -o MUSH -lreadline
 
 #Create Tokenizer Object
 Tokenizer.o: Tokenizer.cpp Tokenizer.hpp

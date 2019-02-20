@@ -15,7 +15,8 @@
 
 using namespace std;
 
-const int MAX_ARGS = 102; // so, really 99 args max since first arg is the program to run
+const int MAX_ARGS = 102; // so, really 99 args max since first arg is the 
+//program to run and last is nulled out
 // Cameron Ozatalar
 // Mariano Gutierrez
 
@@ -74,9 +75,9 @@ void execute_commands(LinkedList* list){
             else 
                 break;
         }
-        //big token 
+        //big token alterntaive method
         //if(!isDelimiter(token)) 
-                //command -> push_back(token);
+                //command -> push_back(token); same strategy just dont break
         // strip commands of < > or &
         command = strip(command);
         if(command -> size() == 0) break;
@@ -144,7 +145,7 @@ void execute_commands(LinkedList* list){
                 }
                 freeLines(arrayOfParameters); // either way, we need to free that array of pointers 
             }
-         delete command; // free up the commnd vector
+         delete command; // free up the command vector
         }
       } 
     }

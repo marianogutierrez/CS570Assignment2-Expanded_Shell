@@ -45,11 +45,19 @@ vector<string>* strip(vector<string> *cmds) {
     vector<string>* cleanedUp = new vector<string>();
     bool detected = false; // to see if warning message will need to be printed.
     for(int i = 0; i < currentSize; i++) {
-        if(cmds -> at(i).compare(">") == 0 || cmds -> at(i).compare("<") == 0){
+        if(cmds -> at(i).compare(">") == 0){
             detected = true;
-            if(i < cmds -> size()){   // as long as there is someting else to grab
+            if(i < cmds -> size()){   // as long as there is something else to grab
                 i++; // skip over it to ensure we don't add it on;
             }
+        }
+        else if(i + 1 != cmds -> size() && cmds -> at(i + 1).compare("<") == 0) {
+            detected = true;
+            i++; // skip over the "<" 
+        }
+        else if(cmds -> at(i).compare("<") == 0) {
+            detected = true;
+            i++; // case with a stray "<" jusst skip it
         }
         else if(cmds -> at(i).compare("&") == 0) {
             detected = true;

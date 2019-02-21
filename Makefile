@@ -15,4 +15,4 @@ LinkedList.o: LinkedList.cpp LinkedList.hpp
 
 #Clean up object and executable files; Note that core is for the core dump file if one is produced
 clean:
-	rm -f core Tokenizer.o LinkedList.o shell 
+	rm -f core Tokenizer.o LinkedList.o MUSH 

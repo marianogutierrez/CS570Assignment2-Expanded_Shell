@@ -2,8 +2,8 @@
 #Mariano Gutierrez
 
 # : indicates dependencies 
-MUSH: Shell.cpp Tokenizer.o LinkedList.o
-	g++ Shell.cpp Tokenizer.o LinkedList.o -g -o MUSH -lreadline
+mush: Shell.cpp Tokenizer.o LinkedList.o
+	g++ Shell.cpp Tokenizer.o LinkedList.o -g -o mush -lreadline
 
 #Create Tokenizer Object
 Tokenizer.o: Tokenizer.cpp Tokenizer.hpp
@@ -15,4 +15,4 @@ LinkedList.o: LinkedList.cpp LinkedList.hpp
 
 #Clean up object and executable files; Note that core is for the core dump file if one is produced
 clean:
-	rm -f core Tokenizer.o LinkedList.o MUSH 
+	rm -f core Tokenizer.o LinkedList.o mush 
